@@ -38,20 +38,17 @@ raw_df <- read.delim(
   na.strings = c("", "NA")
 )
 
-max_total_columns <- 30
-if (ncol(raw_df) > max_total_columns) {
-  raw_df <- raw_df[, seq_len(max_total_columns), drop = FALSE]
-}
-
 if (ncol(raw_df) < 4) {
   stop("Unexpected table format: expected at least 4 columns.")
 }
 
 gene_col <- names(raw_df)[1]
 expr_col_start <- 4
-expr_col_names <- names(raw_df)[expr_col_start:ncol(raw_df)]
+max_expression_columns <- 30
+last_expr_col <- min(ncol(raw_df), expr_col_start + max_expression_columns - 1)
+expr_col_names <- names(raw_df)[expr_col_start:last_expr_col]
 
-expr_df <- raw_df[, expr_col_start:ncol(raw_df), drop = FALSE]
+expr_df <- raw_df[, expr_col_start:last_expr_col, drop = FALSE]
 expr_df <- as.data.frame(lapply(expr_df, function(x) suppressWarnings(as.numeric(x))))
 
 numeric_ok <- vapply(expr_df, function(x) is.numeric(x), logical(1))
